@@ -278,6 +278,18 @@ func TestCreateMergePatchGetObjArray(t *testing.T) {
 	}
 }
 
+func TestCreateMergePatchAddObjArray(t *testing.T) {
+	doc := `[{"created":1556002860865228300,"updated":0,"index":"1","data":"ey"}]`
+
+	pat := `[{"created":1556002860865228300,"updated":0,"index":"1","data":"ey"},{"created":1556002866622282500,"updated":0,"index":"2","data":"Q=="}]`
+
+	res, err := CreateMergePatch([]byte(doc), []byte(pat))
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s, %s", err, string(res))
+	}
+}
+
 func TestCreateMergePatchDeleteKey(t *testing.T) {
 	doc := `{ "title": "hello", "nested": {"one": 1, "two": 2} }`
 	pat := `{ "title": "hello", "nested": {"one": 1}  }`

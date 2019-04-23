@@ -207,12 +207,12 @@ func createObjectMergePatch(originalJSON, modifiedJSON []byte) ([]byte, error) {
 
 	err := json.Unmarshal(originalJSON, &originalDoc)
 	if err != nil {
-		return nil, errBadJSONDoc
+		return nil, err
 	}
 
 	err = json.Unmarshal(modifiedJSON, &modifiedDoc)
 	if err != nil {
-		return nil, errBadJSONDoc
+		return nil, err
 	}
 
 	dest, err := getDiff(originalDoc, modifiedDoc)
@@ -233,17 +233,29 @@ func createArrayMergePatch(originalJSON, modifiedJSON []byte) ([]byte, error) {
 
 	err := json.Unmarshal(originalJSON, &originalDocs)
 	if err != nil {
-		return nil, errBadJSONDoc
+		return nil, err
 	}
 
 	err = json.Unmarshal(modifiedJSON, &modifiedDocs)
 	if err != nil {
-		return nil, errBadJSONDoc
+		return nil, err
 	}
 
 	total := len(originalDocs)
-	if len(modifiedDocs) != total {
-		return nil, errBadJSONDoc
+	modTotal := len(modifiedDocs)
+	if modTotal != total {
+		if modTotal > total {
+			diff := modTotal - total
+			for i := 1; i <= diff; i++ {
+				originalDocs = append(originalDocs, json.RawMessage("{}"))
+			}
+		}
+		if modTotal < total {
+			diff := total - modTotal
+			for i := 1; i <= diff; i++ {
+				modifiedDocs = append(modifiedDocs, json.RawMessage("{}"))
+			}
+		}
 	}
 
 	result := []json.RawMessage{}
